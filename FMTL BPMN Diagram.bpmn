@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:ns1="modeler" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:ns0="xmlns" id="bpmn_copilot_Definition_id" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="f0b992f" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0" ns0:modeler="http://camunda.org/schema/modeler/1.0" ns1:executionPlatform="Camunda Cloud" ns1:executionPlatformVersion="8.6">
+  <bpmn:process id="Leave_Approval_Refined" name="Leave Approval Process" processType="None" isClosed="false" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Employee" name="Employee">
+        <bpmn:flowNodeRef>StartEvent_LeaveRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FillLeaveForm</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_HR" name="HR">
+        <bpmn:flowNodeRef>Task_VerifyInformation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_IsInfoAccurate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CalculateAllowance</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Supervisor" name="Supervisor">
+        <bpmn:flowNodeRef>Task_SupervisorReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SupervisorApproval</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_MD" name="MD">
+        <bpmn:flowNodeRef>Task_MDReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MDApproval</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Chairman" name="Chairman">
+        <bpmn:flowNodeRef>Task_ChairmanReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ChairmanApproval</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Operations" name="Operations">
+        <bpmn:flowNodeRef>Task_PayLeaveAllowance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyStakeholders</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_LeaveApproved</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_LeaveRequest" name="Leave Request Submitted">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_FillLeaveForm" name="Complete Leave Form" implementation="##unspecified">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formId="Form_0tfl4ah" />
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:incoming>Flow_03_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_VerifyInformation" name="Verify Information (HR)" implementation="##unspecified">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_IsInfoAccurate" name="Information Accurate?">
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_03_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_04_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Task_CalculateAllowance" name="Calculate Leave Allowance">
+      <bpmn:incoming>Flow_04_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Task_SupervisorReview" name="Review Request (Supervisor)" implementation="##unspecified">
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_SupervisorApproval" name="Approved?">
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_MDReview" name="Review Request (MD)" implementation="##unspecified">
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_MDApproval" name="Approved?">
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_ChairmanReview" name="Review Request (Chairman)" implementation="##unspecified">
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_ChairmanApproval" name="Approved?">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_PayLeaveAllowance" name="Process Leave Payment" implementation="##WebService">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_NotifyStakeholders" name="Notify Stakeholders of Approval" zeebe:modelerTemplate="io.camunda.connectors.SendGrid.v2" zeebe:modelerTemplateVersion="5" implementation="##WebService">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:sendgrid:1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_LeaveApproved" name="Leave Approved &#38; Paid">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_NotifyRejection" name="Notify Employee of Rejection" zeebe:modelerTemplate="io.camunda.connectors.SendGrid.v2" zeebe:modelerTemplateVersion="5" implementation="##WebService">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:sendgrid:1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Reject_1</bpmn:incoming>
+      <bpmn:incoming>Flow_Reject_2</bpmn:incoming>
+      <bpmn:incoming>Flow_Reject_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_RequestRejected" name="Request Rejected">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="StartEvent_LeaveRequest" targetRef="Task_FillLeaveForm" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_FillLeaveForm" targetRef="Task_VerifyInformation" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Task_VerifyInformation" targetRef="Gateway_IsInfoAccurate" />
+    <bpmn:sequenceFlow id="Flow_03_No" name="No" sourceRef="Gateway_IsInfoAccurate" targetRef="Task_FillLeaveForm" />
+    <bpmn:sequenceFlow id="Flow_04_Yes" name="Yes" sourceRef="Gateway_IsInfoAccurate" targetRef="Task_CalculateAllowance" />
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="Task_CalculateAllowance" targetRef="Task_SupervisorReview" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="Task_SupervisorReview" targetRef="Gateway_SupervisorApproval" />
+    <bpmn:sequenceFlow id="Flow_Reject_1" name="No" sourceRef="Gateway_SupervisorApproval" targetRef="Task_NotifyRejection" />
+    <bpmn:sequenceFlow id="Flow_07" name="Yes" sourceRef="Gateway_SupervisorApproval" targetRef="Task_MDReview" />
+    <bpmn:sequenceFlow id="Flow_08" sourceRef="Task_MDReview" targetRef="Gateway_MDApproval" />
+    <bpmn:sequenceFlow id="Flow_Reject_2" name="No" sourceRef="Gateway_MDApproval" targetRef="Task_NotifyRejection" />
+    <bpmn:sequenceFlow id="Flow_09" name="Yes" sourceRef="Gateway_MDApproval" targetRef="Task_ChairmanReview" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_ChairmanReview" targetRef="Gateway_ChairmanApproval" />
+    <bpmn:sequenceFlow id="Flow_Reject_3" name="No" sourceRef="Gateway_ChairmanApproval" targetRef="Task_NotifyRejection" />
+    <bpmn:sequenceFlow id="Flow_11" name="Yes" sourceRef="Gateway_ChairmanApproval" targetRef="Task_PayLeaveAllowance" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_PayLeaveAllowance" targetRef="Task_NotifyStakeholders" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_NotifyStakeholders" targetRef="EndEvent_LeaveApproved" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_NotifyRejection" targetRef="EndEvent_RequestRejected" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_Leave_Approval_Refined">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_Leave_Approval_Refined" bpmnElement="Leave_Approval_Refined">
+      <bpmndi:BPMNShape id="StartEvent_LeaveRequest_di" bpmnElement="StartEvent_LeaveRequest">
+        <dc:Bounds x="57" y="52" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FillLeaveForm_di" bpmnElement="Task_FillLeaveForm">
+        <dc:Bounds x="175" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_VerifyInformation_di" bpmnElement="Task_VerifyInformation">
+        <dc:Bounds x="325" y="30" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IsInfoAccurate_di" bpmnElement="Gateway_IsInfoAccurate" isMarkerVisible="true">
+        <dc:Bounds x="500" y="45" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="497" y="7.5" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CalculateAllowance_di" bpmnElement="Task_CalculateAllowance">
+        <dc:Bounds x="625" y="30" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SupervisorReview_di" bpmnElement="Task_SupervisorReview">
+        <dc:Bounds x="775" y="30" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_SupervisorApproval_di" bpmnElement="Gateway_SupervisorApproval" isMarkerVisible="true">
+        <dc:Bounds x="950" y="45" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="948" y="21" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MDReview_di" bpmnElement="Task_MDReview">
+        <dc:Bounds x="1075" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_MDApproval_di" bpmnElement="Gateway_MDApproval" isMarkerVisible="true">
+        <dc:Bounds x="1250" y="185" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1248" y="161" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ChairmanReview_di" bpmnElement="Task_ChairmanReview">
+        <dc:Bounds x="1375" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ChairmanApproval_di" bpmnElement="Gateway_ChairmanApproval" isMarkerVisible="true">
+        <dc:Bounds x="1550" y="185" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1548" y="161" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PayLeaveAllowance_di" bpmnElement="Task_PayLeaveAllowance">
+        <dc:Bounds x="1675" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyStakeholders_di" bpmnElement="Task_NotifyStakeholders">
+        <dc:Bounds x="1825" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_LeaveApproved_di" bpmnElement="EndEvent_LeaveApproved">
+        <dc:Bounds x="2007" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyRejection_di" bpmnElement="Task_NotifyRejection">
+        <dc:Bounds x="1150" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_RequestRejected_di" bpmnElement="EndEvent_RequestRejected">
+        <dc:Bounds x="1332" y="52" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1306" y="88" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="93" y="70" />
+        <di:waypoint x="175" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="275" y="70" />
+        <di:waypoint x="325" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="425" y="70" />
+        <di:waypoint x="500" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_No_di" bpmnElement="Flow_03_No">
+        <di:waypoint x="525" y="95" />
+        <di:waypoint x="525" y="200" />
+        <di:waypoint x="225" y="200" />
+        <di:waypoint x="225" y="110" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="368" y="175" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_Yes_di" bpmnElement="Flow_04_Yes">
+        <di:waypoint x="550" y="70" />
+        <di:waypoint x="625" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="725" y="70" />
+        <di:waypoint x="775" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="875" y="70" />
+        <di:waypoint x="950" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_1_di" bpmnElement="Flow_Reject_1">
+        <di:waypoint x="1000" y="70" />
+        <di:waypoint x="1150" y="70" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1068" y="45" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="975" y="95" />
+        <di:waypoint x="975" y="210" />
+        <di:waypoint x="1075" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <di:waypoint x="1175" y="210" />
+        <di:waypoint x="1250" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_2_di" bpmnElement="Flow_Reject_2">
+        <di:waypoint x="1275" y="235" />
+        <di:waypoint x="1275" y="340" />
+        <di:waypoint x="1200" y="340" />
+        <di:waypoint x="1200" y="110" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1250" y="291" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1300" y="210" />
+        <di:waypoint x="1375" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1475" y="210" />
+        <di:waypoint x="1550" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_3_di" bpmnElement="Flow_Reject_3">
+        <di:waypoint x="1575" y="235" />
+        <di:waypoint x="1575" y="340" />
+        <di:waypoint x="1200" y="340" />
+        <di:waypoint x="1200" y="110" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1380" y="315" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1600" y="210" />
+        <di:waypoint x="1675" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1775" y="210" />
+        <di:waypoint x="1825" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1925" y="210" />
+        <di:waypoint x="2007" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="1250" y="70" />
+        <di:waypoint x="1332" y="70" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
